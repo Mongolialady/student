@@ -15,41 +15,55 @@ const dataSource = [{
     address: '10 Downing Street'
 }];
 
-const columns = [{
-    title: 'Name',
-    dataIndex: 'name',
-    key: 'name',
-}, {
-    title: 'Age',
-    dataIndex: 'age',
-    key: 'age',
-}, {
-    title: 'Address',
-    dataIndex: 'address',
-    key: 'address',
-}, {
-    title: 'Action',
-    dataIndex: 'action',
-    key: 'action',
-    render: (text, record) => (
-        <span>
-      <Link to={"/students/" + record.key + "/edit"}>Edit</Link>
-      <Divider type="vertical"/>
-      <a href="javascript:;">Delete</a>
-    </span>
-    ),
-}];
+
+function columnFactory(deleteHandler) {
+    return [{
+        title: 'Name',
+        dataIndex: 'name',
+        key: 'name',
+    }, {
+        title: 'Age',
+        dataIndex: 'age',
+        key: 'age',
+    }, {
+        title: 'Address',
+        dataIndex: 'address',
+        key: 'address',
+    }, {
+        title: 'Action',
+        dataIndex: 'action',
+        key: 'action',
+        render: (text, record) =>  {
+
+            return (
+            <span>
+                <Link to={"/students/" + record.key + "/edit"}>Edit</Link>
+                 <Divider type="vertical"/>
+                 <a onClick={()=> deleteHandler(record.key)}>Delete</a>
+            </span> ) },
+    }];
+}
+
 
 class StudentList extends Component {
+    constructor(...args) {
+        super(...args);
+        this.columns = columnFactory(this.deleteHandler.bind(this));
+    }
+
+    deleteHandler(key) {
+        console.log("key", key);
+        console.log("this", this);
+    }
 
     render() {
         return (
             <div>
-                <p style={{"textAlign":"right", "marginTop":"20px"}}>
+                <p style={{"textAlign": "right", "marginTop": "20px"}}>
                     <Link className={"ant-btn ant-btn-primary"} to={"/students/create"}>create</Link>
                 </p>
 
-                <Table dataSource={dataSource} columns={columns}/>
+                <Table dataSource={dataSource} columns={this.columns}/>
             </div>)
     }
 }
