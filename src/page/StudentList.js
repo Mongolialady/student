@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
-import {Table, Button, Divider} from 'antd';
+import {Table, Button, Divider, Modal} from 'antd';
 import {Link} from "react-router-dom";
+import axios from 'axios';
 
 
-const dataSource = [{
+/*const dataSource = [{
     key: '1',
     name: 'Mike',
     age: 32,
@@ -13,22 +14,27 @@ const dataSource = [{
     name: 'John',
     age: 42,
     address: '10 Downing Street'
-}];
+}];*/
 
+const confirm = Modal.confirm;
 
 function columnFactory(deleteHandler) {
     return [{
-        title: 'Name',
-        dataIndex: 'name',
-        key: 'name',
+        title: 'Roll Number',
+        dataIndex: 'rollNo',
+        key: 'rollNo',
     }, {
-        title: 'Age',
-        dataIndex: 'age',
-        key: 'age',
+        title: 'First Name',
+        dataIndex: 'firstName',
+        key: 'firstName',
     }, {
-        title: 'Address',
-        dataIndex: 'address',
-        key: 'address',
+        title: 'Last Name',
+        dataIndex: 'lastName',
+        key: 'lastName',
+    },{
+        title: 'Rank',
+        dataIndex: 'rank',
+        key: 'rank',
     }, {
         title: 'Action',
         dataIndex: 'action',
@@ -49,14 +55,34 @@ class StudentList extends Component {
     constructor(...args) {
         super(...args);
         this.columns = columnFactory(this.deleteHandler.bind(this));
+        this.state={
+            studentList: []
+        }
     }
 
-    deleteHandler(key) {
-        console.log("key", key);
-        console.log("this", this);
+    componentDidMount(){
+        axios.get("/api")
+            .then(res => {
+                const studentList = res.data.dataSource;
+                this.setState({studentList});
+            });
+    }
+
+    deleteHandler() {
+        confirm({
+            title: 'Do you want to delete this item?',
+            content: 'When clicked the OK button, this dialog will be closed after 1 second',
+            onOk() {
+                return new Promise((resolve, reject) => {
+                    setTimeout(Math.random() > 0.5 ? resolve : reject, 1000);
+                }).catch(() => console.log('Oops errors!'));
+            },
+            onCancel() {},
+        });
     }
 
     render() {
+        var dataSource = this.state.studentList;
         return (
             <div>
                 <p style={{"textAlign": "right", "marginTop": "20px"}}>

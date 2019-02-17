@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Form, DatePicker, TimePicker, Button, Input} from 'antd';
+import {Form, DatePicker, TimePicker, Button, Input, Icon} from 'antd';
 import './studentForm.css';
 
 const formItemLayout = {
@@ -21,13 +21,18 @@ const rangeConfig = {
 
 class StudentInfo extends Component {
     render() {
+        const { getFieldDecorator } = this.props.form;
         return (
             <div>
                 <Form.Item
                     {...formItemLayout}
                     label="Roll Number"
                 >
-                    <Input/>
+                    {getFieldDecorator('rollNo', {
+                        rules: [{ required: true, message: 'Please input your roll number!' }],
+                    })(
+                        <Input prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />} placeholder="RollNo" />
+                    )}
                 </Form.Item>
                 <Form.Item
                     {...formItemLayout}
@@ -52,4 +57,4 @@ class StudentInfo extends Component {
     }
 }
 
-export default StudentInfo;
+export default Form.create(StudentInfo);
