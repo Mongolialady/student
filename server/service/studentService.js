@@ -56,10 +56,15 @@ function deleteStudent(rollNo){
  * @returns {Promise<any>}
  */
 
-function getStudents(sort){
+function getStudents(field, order){
+   var sorter={};
+   if (field) {
+       sorter[field] = order === 'ascend'?1 : -1;
+   }
+
 
     return new Promise(function(resolve, reject) {
-        StudentModel.find({}).sort(sort).exec(function(error, docs) {
+        StudentModel.find({}).sort(sorter).exec(function(error, docs) {
             if (error) {
                 reject(error);
             } else {

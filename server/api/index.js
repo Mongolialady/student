@@ -3,7 +3,10 @@ var router = express.Router();
 var service = require('../service/studentService');
 
 router.get('/', function(req, res, next) {
-    service.getStudents({}).then((data)=>{
+    var field = req.query.field|| "";
+    var order = req.query.order || ""
+
+    service.getStudents(field, order).then((data)=>{
         res.send(JSON.stringify(data));
 
     }, (error)=>{
@@ -47,9 +50,9 @@ router.delete('/students/:rollNo', function(req, res, next){
     var rollNo = req.params.rollNo;
     service.deleteStudent(rollNo).then(
         () => {
-
-        }, () => {
-
+            res.send({});
+        }, (error) => {
+            next(error);
         }
     )
 });

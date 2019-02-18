@@ -3,22 +3,9 @@ import {Table, Button, Divider, Modal} from 'antd';
 import {Link} from "react-router-dom";
 import axios from 'axios';
 
-
-/*const dataSource = [{
-    key: '1',
-    name: 'Mike',
-    age: 32,
-    address: '10 Downing Street'
-}, {
-    key: '2',
-    name: 'John',
-    age: 42,
-    address: '10 Downing Street'
-}];*/
-
 const confirm = Modal.confirm;
 
-function columnFactory(deleteHandler) {
+function columnFactory(self, deleteHandler) {
     return [{
         title: 'Roll Number',
         dataIndex: 'rollNo',
@@ -27,26 +14,31 @@ function columnFactory(deleteHandler) {
         title: 'First Name',
         dataIndex: 'firstName',
         key: 'firstName',
+        sorter: (a, b) => a.length - b.length,
+
     }, {
         title: 'Last Name',
         dataIndex: 'lastName',
         key: 'lastName',
-    },{
+        sorter: (a, b) => a.length - b.length,
+    }, {
         title: 'Rank',
         dataIndex: 'rank',
         key: 'rank',
+        sorter: (a, b) => a - b,
     }, {
         title: 'Action',
         dataIndex: 'action',
         key: 'action',
-        render: (text, record) =>  {
+        render: (text, record) => {
 
             return (
-            <span>
+                <span>
                 <Link to={"/students/" + record.rollNo + "/edit"}>Edit</Link>
                  <Divider type="vertical"/>
-                 <a onClick={()=> deleteHandler(record.rollNo)}>Delete</a>
-            </span> ) },
+                 <a onClick={ deleteHandler.bind(self, record.rollNo)}>Delete</a>
+            </span>)
+        },
     }];
 }
 
@@ -54,51 +46,57 @@ function columnFactory(deleteHandler) {
 class StudentList extends Component {
     constructor(...args) {
         super(...args);
-        this.columns = columnFactory(this.deleteHandler.bind(this));
-        this.state={
-            studentList: []
+        this.columns = columnFactory(this,this.deleteHandler);
+        this.state = {
+            studentList: [],
+            sortedInfo: null
         }
     }
 
-    componentDidMount(){
+    componentDidMount() {
         this.getStudentList();
     }
 
-    getStudentList = ()=>{
-        axios.get("/api")
+    getStudentList = (sorter={}) => {
+        axios.get("/api?field=" + sorter.field + "&order=" + sorter.order)
             .then(res => {
                 const studentList = res.data;
                 this.setState({studentList});
             });
     };
 
-    deleteHandler(rollNo) {
+    deleteHandler = (rollNo) => {
+       var self=this;
+
         confirm({
             title: 'Confirmation',
             content: 'Do you want to delete this item?',
             onOk() {
-               axios.delete('/api/students/'+rollNo)
-                   .then(
-                       () => {
-                           this.getStudentList();
-                       }, () => {
+                axios.delete('/api/students/' + rollNo).then(() => {
+                        self.getStudentList();
+                    }, () => {
 
-                       }
-                   )
+                    })
             },
-            onCancel() {},
+            onCancel() {
+            },
         });
-    }
+    };
+
+
+    tableChangeHandler = (paging,filter,sorter) => {
+        this.getStudentList(sorter)
+    };
 
     render() {
         var dataSource = this.state.studentList;
         return (
-            <div>
+            <div style={{"marginLeft": "200px", "marginRight": "200px"}}>
                 <p style={{"textAlign": "right", "marginTop": "20px"}}>
                     <Link className={"ant-btn ant-btn-primary"} to={"/students/create"}>create</Link>
                 </p>
 
-                <Table dataSource={dataSource} columns={this.columns}/>
+                <Table dataSource={dataSource} columns={this.columns} onChange={this.tableChangeHandler}/>
             </div>)
     }
 }
