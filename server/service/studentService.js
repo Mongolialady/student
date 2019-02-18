@@ -75,7 +75,7 @@ function getStudent(rollNo){
             if(error){
                 reject(error);
             }else{
-                resolve({doc});
+                resolve(doc.toObject());
             }
         })
     })

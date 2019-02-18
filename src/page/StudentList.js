@@ -43,9 +43,9 @@ function columnFactory(deleteHandler) {
 
             return (
             <span>
-                <Link to={"/students/" + record.key + "/edit"}>Edit</Link>
+                <Link to={"/students/" + record.rollNo + "/edit"}>Edit</Link>
                  <Divider type="vertical"/>
-                 <a onClick={()=> deleteHandler(record.key)}>Delete</a>
+                 <a onClick={()=> deleteHandler(record.rollNo)}>Delete</a>
             </span> ) },
     }];
 }
@@ -61,21 +61,30 @@ class StudentList extends Component {
     }
 
     componentDidMount(){
-        axios.get("/api")
-            .then(res => {
-                const studentList = res.data.dataSource;
-                this.setState({studentList});
-            });
+        this.getStudentList();
     }
 
-    deleteHandler() {
+    getStudentList = ()=>{
+        axios.get("/api")
+            .then(res => {
+                const studentList = res.data;
+                this.setState({studentList});
+            });
+    };
+
+    deleteHandler(rollNo) {
         confirm({
-            title: 'Do you want to delete this item?',
-            content: 'When clicked the OK button, this dialog will be closed after 1 second',
+            title: 'Confirmation',
+            content: 'Do you want to delete this item?',
             onOk() {
-                return new Promise((resolve, reject) => {
-                    setTimeout(Math.random() > 0.5 ? resolve : reject, 1000);
-                }).catch(() => console.log('Oops errors!'));
+               axios.delete('/api/students/'+rollNo)
+                   .then(
+                       () => {
+                           this.getStudentList();
+                       }, () => {
+
+                       }
+                   )
             },
             onCancel() {},
         });

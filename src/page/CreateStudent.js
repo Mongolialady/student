@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import {Form, Button, Input, Icon} from 'antd';
-import {Link} from "react-router-dom";
+import {Link, withRouter} from "react-router-dom";
+
+import axios from 'axios';
 
 //import StudentInfo from '../component/StudentInfo';
 import '../component/studentForm.css';
@@ -44,9 +46,16 @@ class CreateStudent extends Component {
         this.props.form.validateFields((error, values) => {
             if(!error) {
                 console.log("values", values);
+                axios.post('/api/students', values).then(
+                    ()=>{
+                        this.props.history.push("/");
+                    }, ()=> {
+
+                    }
+                );
             }
         });
-    }
+    };
 
     render() {
         console.log("form", this.props.form);
@@ -108,4 +117,4 @@ class CreateStudent extends Component {
     }
 }
 
-export default Form.create({})(CreateStudent);
+export default Form.create({})(withRouter(CreateStudent));

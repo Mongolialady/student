@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {Form, Button, Input, Icon} from 'antd';
-import {Link} from "react-router-dom";
+import {Link, withRouter} from "react-router-dom";
+import axios from 'axios';
 
 //import StudentInfo from '../component/StudentInfo';
 import '../component/studentForm.css';
@@ -36,17 +37,36 @@ const rangeConfig = {
 };
 
 class StudentEdit extends Component{
+
+
+    componentDidMount(){
+       let id= this.props.match.params.id;
+
+        axios.get('/api/students/' + id)
+            .then((res) => {
+                const student = res.data || {};
+                this.props.form.setFieldsValue(student)
+            },() => {
+
+            });
+    }
+
     handleSubmit = (e) => {
+        let id= this.props.match.params.id;
+
         e.preventDefault();
-
-        console.log("form", this.props.form);
-
         this.props.form.validateFields((error, values) => {
             if(!error) {
                 console.log("values", values);
+                axios.put('/api/students/'+id, values).then(
+                            () => {
+                                this.props.history.push("/");
+                            }, () => {
+
+                            });
             }
         });
-    }
+    };
 
     render(){
         console.log("form", this.props.form);
@@ -61,7 +81,7 @@ class StudentEdit extends Component{
                     {getFieldDecorator('rollNo', {
                         rules: [{ required: true, message: 'Please input your roll number!' }],
                     })(
-                        <Input prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />} placeholder="Roll Number" />
+                        <Input  disabled={true} prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />} placeholder="Roll Number" />
                     )}
                 </Form.Item>
                 <Form.Item
@@ -85,14 +105,24 @@ class StudentEdit extends Component{
                     )}
                 </Form.Item>
                 <Form.Item
+                    {...formItemLayout}
+                    label="Rank"
+                >
+                    {getFieldDecorator('rank', {
+                        rules: [{ required: true, message: 'Please input your rank!' }],
+                    })(
+                        <Input prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />} placeholder="Rank" />
+                    )}
+                </Form.Item>
+                <Form.Item
                     {...submitFormItemLayout}
                 >
                     <Link to='/' className="ant-btn" style={{"marginRight" : "25px"}}>Cancel</Link>
-                    <Button type="primary">Submit</Button>
+                    <Button type="primary" htmlType='submit'>Submit</Button>
                 </Form.Item>
             </Form>
         )
     }
 }
 
-export default StudentEdit;
+export default Form.create()(withRouter(StudentEdit));
