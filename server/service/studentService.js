@@ -48,7 +48,7 @@ function updateStudent(rollNo, student){
 
 function deleteStudent(rollNo){
     return new Promise(function (resolve, reject) {
-        StudentModel.remove({'rollNo': rollNo}, function (error) {
+        StudentModel.findOneAndRemove({'rollNo': rollNo}, function (error) {
             if(error){
                 reject(error);
             }else{
