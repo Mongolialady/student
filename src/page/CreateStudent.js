@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Form, Button, Input, Icon} from 'antd';
+import {Form, Button, Input, Icon, Modal} from 'antd';
 import {Link, withRouter} from "react-router-dom";
 
 import axios from 'axios';
@@ -17,12 +17,7 @@ const formItemLayout = {
         sm: {span: 16},
     },
 };
-const config = {
-    rules: [{type: 'object', required: true, message: 'Please select time!'}],
-};
-const rangeConfig = {
-    rules: [{type: 'array', required: true, message: 'Please select time!'}],
-};
+
 
 const submitFormItemLayout = {
     wrapperCol: {
@@ -40,17 +35,18 @@ const submitFormItemLayout = {
 class CreateStudent extends Component {
     handleSubmit = (e) => {
         e.preventDefault();
-
-        console.log("form", this.props.form);
-
         this.props.form.validateFields((error, values) => {
             if(!error) {
-                console.log("values", values);
                 axios.post('/api/students', values).then(
                     ()=>{
                         this.props.history.push("/");
-                    }, ()=> {
+                    }, (error)=> {
+                        let body=error.response.data || {};
 
+                        Modal.error({
+                            title: body.code,
+                            content: body.message,
+                        });
                     }
                 );
             }
@@ -58,7 +54,6 @@ class CreateStudent extends Component {
     };
 
     render() {
-        console.log("form", this.props.form);
         const { getFieldDecorator } = this.props.form;
 
         return (

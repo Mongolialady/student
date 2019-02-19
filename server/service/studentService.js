@@ -8,13 +8,23 @@ function createStudent(student){
         rank: student.rank
     });
     return new Promise(function (resolve, reject) {
-       instance.save(function(error) {
-           if (error) {
-               reject(error);
-           } else {
-               resolve({})
-           }
-       })
+        getStudent(student.rollNo).then(
+            (data) => {
+                if(data != null){
+                    reject({"code": "duplicate", "message": " A student with the same rollNumber already exists"});
+                } else {
+                    instance.save(function(error) {
+                        if (error) {
+                            reject(error);
+                        } else {
+                            resolve({})
+                        }
+                    })
+                }
+            }, (error) => {
+                reject(error);
+            }
+        )
    })
 }
 
@@ -80,7 +90,7 @@ function getStudent(rollNo){
             if(error){
                 reject(error);
             }else{
-                resolve(doc.toObject());
+                resolve(doc == null? null : doc.toObject());
             }
         })
     })
